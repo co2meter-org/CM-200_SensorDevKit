@@ -23,6 +23,9 @@
 
 /* USER CODE BEGIN INCLUDE */
 #include "main.h"
+//#include "custom_stm.h"
+#include "custom_app.h"
+
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -475,7 +478,8 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *UartHandle)
 }
 
 
-void txToUSB() {
+void txToUSB()
+{
   uint32_t buffptr;
   uint32_t buffsize;
 
@@ -492,18 +496,29 @@ void txToUSB() {
 
 	buffptr = UserTxBufPtrOut;
 
-	USBD_CDC_SetTxBuffer(&hUsbDeviceFS, (uint8_t*)&UserTxBufferFS[buffptr], buffsize);
+	if (UserTxBufferFS[buffptr] != 0)
+		USBD_CDC_SetTxBuffer(&hUsbDeviceFS, (uint8_t*)&UserTxBufferFS[buffptr], buffsize);
 
 	if(USBD_CDC_TransmitPacket(&hUsbDeviceFS) == USBD_OK)
 	{
-	  UserTxBufPtrOut += buffsize;
-	  if (UserTxBufPtrOut == APP_RX_DATA_SIZE)
-	  {
-		UserTxBufPtrOut = 0;
-	  }
+		uint8_t bleTXBuffer[buffsize];
+		strncpy((char *)bleTXBuffer, (char *)UserTxBufferFS[buffptr], buffsize);
+		Custom_App_ConnHandle_Not_evt_t ble_handler;
+		ble_handler.Custom_Evt_Opcode = CUSTOM_UART_READ_EVT;
+		ble_handler.Custom_Evt_Data = bleTXBuffer;
+		ble_handler.Custom_Evt_Data_Size = buffsize;
+		Custom_APP_Notification(&ble_handler);
+		//Custom_STM_App_Update_Char(1,  bleTXBuffer);
+		UserTxBufPtrOut += buffsize;
+		if (UserTxBufPtrOut == APP_RX_DATA_SIZE)
+		{
+			UserTxBufPtrOut = 0;
+		}
 	}
   }
 }
+
+
 /**
   * @brief  Rx Transfer completed callback
   * @param  huart: UART handle
@@ -523,8 +538,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
   /* Start another reception: provide the buffer pointer with offset and the buffer size */
   HAL_UART_Receive_IT(huart, (uint8_t *)(UserTxBufferFS + UserTxBufPtrIn), 1);
-
-
 }
 /* USER CODE END PRIVATE_FUNCTIONS_IMPLEMENTATION */
 
