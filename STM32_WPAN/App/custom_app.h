@@ -38,15 +38,12 @@ typedef enum
 {
   CUSTOM_CONN_HANDLE_EVT,
   CUSTOM_DISCON_HANDLE_EVT,
-  CUSTOM_UART_READ_EVT,
 } Custom_App_Opcode_Notification_evt_t;
 
 typedef struct
 {
   Custom_App_Opcode_Notification_evt_t     Custom_Evt_Opcode;
   uint16_t                                 ConnectionHandle;
-  uint16_t									Custom_Evt_Data_Size;
-  uint8_t *									Custom_Evt_Data;
 } Custom_App_ConnHandle_Not_evt_t;
 /* USER CODE BEGIN ET */
 
@@ -71,6 +68,7 @@ typedef struct
 void Custom_APP_Init(void);
 void Custom_APP_Notification(Custom_App_ConnHandle_Not_evt_t *pNotification);
 /* USER CODE BEGIN EF */
+void Write_UART_To_BLE(uint8_t * bBuff, size_t bBuffSize);
 
 /* USER CODE END EF */
 

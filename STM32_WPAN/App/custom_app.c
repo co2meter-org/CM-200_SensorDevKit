@@ -73,6 +73,7 @@ uint8_t UpdateCharData[247];
 uint8_t NotifyCharData[247];
 
 /* USER CODE BEGIN PV */
+uint8_t bConnected = 0;
 
 /* USER CODE END PV */
 
@@ -127,6 +128,9 @@ void Custom_STM_App_Notification(Custom_STM_App_Notification_evt_t *pNotificatio
 
       /* USER CODE END CUSTOM_STM_READ_NOTIFY_DISABLED_EVT */
       break;
+    case 32:
+    	Custom_Read_Update_Char();
+    	break;
 
     default:
       /* USER CODE BEGIN CUSTOM_STM_App_Notification_default */
@@ -153,20 +157,16 @@ void Custom_APP_Notification(Custom_App_ConnHandle_Not_evt_t *pNotification)
     /* USER CODE END P2PS_CUSTOM_Notification_Custom_Evt_Opcode */
     case CUSTOM_CONN_HANDLE_EVT :
       /* USER CODE BEGIN CUSTOM_CONN_HANDLE_EVT */
-
+    	bConnected = 1;
       /* USER CODE END CUSTOM_CONN_HANDLE_EVT */
       break;
 
     case CUSTOM_DISCON_HANDLE_EVT :
       /* USER CODE BEGIN CUSTOM_DISCON_HANDLE_EVT */
-
+    	bConnected = 0;
       /* USER CODE END CUSTOM_DISCON_HANDLE_EVT */
       break;
 
-    case CUSTOM_UART_READ_EVT:
-    	strncpy((char *)UpdateCharData, pNotification->Custom_Evt_Data, pNotification->Custom_Evt_Data_Size);
-    	Custom_Read_Update_Char();
-    	break;
     default:
       /* USER CODE BEGIN CUSTOM_APP_Notification_default */
 
@@ -184,6 +184,7 @@ void Custom_APP_Notification(Custom_App_ConnHandle_Not_evt_t *pNotification)
 void Custom_APP_Init(void)
 {
   /* USER CODE BEGIN CUSTOM_APP_Init */
+	UTIL_SEQ_RegTask(1<<CUSTOM_STM_READ_NOTIFY_ENABLED_EVT, UTIL_SEQ_RFU, Custom_STM_App_Notification);
 
   /* USER CODE END CUSTOM_APP_Init */
   return;
@@ -202,7 +203,7 @@ void Custom_APP_Init(void)
 /* CM200_SensorDevKit */
 void Custom_Read_Update_Char(void) /* Property Read */
 {
-  uint8_t updateflag = 0;
+  uint8_t updateflag = 1;
 
   /* USER CODE BEGIN Read_UC_1*/
 
@@ -211,6 +212,7 @@ void Custom_Read_Update_Char(void) /* Property Read */
   if (updateflag != 0)
   {
     Custom_STM_App_Update_Char(CUSTOM_STM_READ, (uint8_t *)UpdateCharData);
+    updateflag = 0;
   }
 
   /* USER CODE BEGIN Read_UC_Last*/
@@ -240,5 +242,12 @@ void Custom_Read_Send_Notification(void) /* Property Notification */
 }
 
 /* USER CODE BEGIN FD_LOCAL_FUNCTIONS*/
+void Write_UART_To_BLE(uint8_t * bBuff, size_t bBuffSize)
+{
+	strncpy(UpdateCharData, bBuff, bBuffSize);
+	// CUSTOM_STM_WRITE_WRITE_NO_RESP_EVT
+	UTIL_SEQ_SetTask( 1<<CUSTOM_STM_READ_NOTIFY_ENABLED_EVT, CFG_SCH_PRIO_0);
+	//Custom_Read_Update_Char();
+}
 
 /* USER CODE END FD_LOCAL_FUNCTIONS*/

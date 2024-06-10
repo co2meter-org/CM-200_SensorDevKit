@@ -51,6 +51,7 @@ UART_HandleTypeDef huart1;
 DMA_HandleTypeDef hdma_usart1_tx;
 
 /* USER CODE BEGIN PV */
+extern uint8_t bConnected;
 
 /* USER CODE END PV */
 
@@ -123,16 +124,16 @@ int main(void)
   }
 
   /* USER CODE END 2 */
-
+	LL_HSEM_1StepLock( HSEM, 5 );
   /* Init code for STM32_WPAN */
-  //MX_APPE_Init();
+  MX_APPE_Init();
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
     /* USER CODE END WHILE */
-    //MX_APPE_Process();
+    MX_APPE_Process();
 
     /* USER CODE BEGIN 3 */
   }

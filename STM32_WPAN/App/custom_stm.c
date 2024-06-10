@@ -24,6 +24,7 @@
 
 /* USER CODE BEGIN Includes */
 #include "main.h"
+#include "usbd_cdc_if.h"
 
 /* USER CODE END Includes */
 
@@ -196,9 +197,13 @@ static SVCCTL_EvtAckStatus_t Custom_STM_Event_Handler(void *Event)
 
           else if (attribute_modified->Attr_Handle == (CustomContext.CustomWriteHdle + CHARACTERISTIC_VALUE_ATTRIBUTE_OFFSET))
           {
-        	/* USER CODE BEGIN CUSTOM_STM_Service_1_Char_1_ACI_GATT_ATTRIBUTE_MODIFIED_VSEVT_CODE */
+            //return_value = SVCCTL_EvtAckFlowEnable;
+            /* USER CODE BEGIN CUSTOM_STM_Service_1_Char_1_ACI_GATT_ATTRIBUTE_MODIFIED_VSEVT_CODE */
 
-        	  HAL_UART_Transmit_DMA(&huart1, attribute_modified->Attr_Data[attribute_modified->Offset], attribute_modified->Attr_Data_Length);
+        	  //HAL_UART_Transmit_IT(&huart1, attribute_modified->Attr_Data[attribute_modified->Offset], attribute_modified->Attr_Data_Length);
+        	  uint8_t bleData[attribute_modified->Attr_Data_Length];
+        	  strncpy((char *)bleData, (char *)&attribute_modified->Attr_Data[attribute_modified->Offset], attribute_modified->Attr_Data_Length);
+        	  BLE_to_UART(bleData, attribute_modified->Attr_Data_Length);
 
         	  return_value = SVCCTL_EvtAckFlowEnable;
 
@@ -415,7 +420,7 @@ tBleStatus Custom_STM_App_Update_Char(Custom_STM_Char_Opcode_t CharOpcode, uint8
       ret = aci_gatt_update_char_value(CustomContext.CustomCm200Hdle,
                                        CustomContext.CustomReadHdle,
                                        0, /* charValOffset */
-                                       strlen((char *)pPayload), /* charValueLen */
+                                       SizeRead, /* charValueLen */
                                        (uint8_t *)  pPayload);
       if (ret != BLE_STATUS_SUCCESS)
       {
