@@ -5,6 +5,72 @@
  *      Author: robert.miller
  */
 
+#include "uart_ifce.h"
+
+#define BUFF_LENGTH  2048
+/* Create buffer for reception and transmission           */
+/* It's up to user to redefine and/or remove those define */
+/** Received data over USB are stored in this buffer      */
+//uint8_t UserRxBuffer[BuffLength];
+
+/** Data to send over USB CDC are stored in this buffer   */
+uint8_t UserTxBuffer[BUFF_LENGTH] = { 0 };
+
+uint32_t UserTxBufPtrIn;/* Increment this pointer or roll it back to
+                               start address when data are received over USART */
+uint32_t UserTxBufPtrOut; /* Increment this pointer or roll it back to
+                                 start address when data are sent over USB */
+uint8_t UserRxBufferBLE[32];
+uint8_t UserRxBufferPtrBLE = 0;
+uint16_t UserRxBufferLengthBLE = 0;
+
+extern UART_HandleTypeDef huart1;
+
+__IO uint32_t uwPrescalerValue;
+
+void uart_ifce_init()
+{
+	  /* USER CODE BEGIN 3 */
+	  /*##-1- Configure the UART peripheral ######################################*/
+	  /* Put the USART peripheral in the Asynchronous mode (UART Mode) */
+	  /* USART configured as follow:
+	      - Word Length = 8 Bits
+	      - Stop Bit    = One Stop bit
+	      - Parity      = No parity
+	      - BaudRate    = 115200 baud
+	      - Hardware flow control disabled (RTS and CTS signals) */
+	  huart1.Instance          = USART1;
+	  huart1.Init.BaudRate     = 9600;
+	  huart1.Init.WordLength   = UART_WORDLENGTH_8B;
+	  huart1.Init.StopBits     = UART_STOPBITS_1;
+	  huart1.Init.Parity       = UART_PARITY_NONE;
+	  huart1.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
+	  huart1.Init.Mode         = UART_MODE_TX_RX;
+
+	  if(HAL_UART_Init(&huart1) != HAL_OK)
+	  {
+	    /* Initialization Error */
+	    Error_Handler();
+	  }
+
+	  /*##-2- Put UART peripheral in IT reception process ########################*/
+	  /* Any data received will be stored in "UserTxBufferFS" buffer  */
+	  if(HAL_UART_Receive_IT(&huart1, (uint8_t *)UserTxBuffer, 1) != HAL_OK)
+	  {
+	    /* Transfer error in reception process */
+	    Error_Handler();
+	  }
+}
+
+void uart_ifce_deinit()
+{
+	  if(HAL_UART_DeInit(&huart1) != HAL_OK)
+	  {
+	    /* Initialization Error */
+	    Error_Handler();
+	  }
+}
+
 /**
   * @brief  Tx Transfer completed callback
   * @param  huart: UART handle
@@ -13,7 +79,7 @@
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
   /* Initiate next USB packet transfer once UART completes transfer (transmitting data over Tx line) */
-  USBD_CDC_ReceivePacket(&hUsbDeviceFS);//hUsbDeviceFS
+	USB_Rcv();
 }
 
 /**
@@ -23,7 +89,7 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
   * @retval None.
   * @note   When a configuration is not supported, a default value is used.
   */
-static void ComPort_Config(void)
+void ComPort_Config(USBD_CDC_LineCodingTypeDef LineCoding)
 {
   if(HAL_UART_DeInit(&huart1) != HAL_OK)
   {
@@ -97,7 +163,7 @@ static void ComPort_Config(void)
   }
 
   /* Start reception: provide the buffer pointer with offset and the buffer size */
-  HAL_UART_Receive_IT(&huart1, (uint8_t *)(UserTxBufferFS + UserTxBufPtrIn), 1);
+  HAL_UART_Receive_IT(&huart1, (uint8_t *)(UserTxBuffer + UserTxBufPtrIn), 1);
 }
 
 
@@ -135,6 +201,11 @@ uint16_t ModRTU_CRC(const unsigned char * buf, int len)
   return crc;
 }
 
+void uart_ifce_transmit_dma(const uint8_t *pData, uint16_t Size)
+{
+	HAL_UART_Transmit_DMA(&huart1, pData, Size);
+}
+
 static uint8_t check_crc()
 {
 	if (UserRxBufferLengthBLE < 7)
@@ -156,6 +227,7 @@ void txToUSB()
 {
   uint32_t buffptr;
   uint32_t buffsize;
+  uint8_t status = USBD_OK;
 
   if(UserTxBufPtrOut != UserTxBufPtrIn)
   {
@@ -170,13 +242,13 @@ void txToUSB()
 
 	buffptr = UserTxBufPtrOut;
 
-	if (UserTxBufferFS[buffptr] != 0)
-		USBD_CDC_SetTxBuffer(&hUsbDeviceFS, (uint8_t*)&UserTxBufferFS[buffptr], buffsize);
+	if (UserTxBuffer[buffptr] != 0)
+		status = CDC_Transmit_FS((uint8_t*)&UserTxBuffer[buffptr], buffsize);
 
-	if(USBD_CDC_TransmitPacket(&hUsbDeviceFS) == USBD_OK)
+	if(status == USBD_OK)
 	{
-		UserRxBufferBLE[UserRxBufferLengthBLE++] = UserTxBufferFS[buffptr];
-		if(UserTxBufferFS[buffptr] == '\n' && UserRxBufferBLE[0] != 0xFE)
+		UserRxBufferBLE[UserRxBufferLengthBLE++] = UserTxBuffer[buffptr];
+		if(UserTxBuffer[buffptr] == '\n' && UserRxBufferBLE[0] != 0xFE)
 		{
 			Write_UART_To_BLE(UserRxBufferBLE, UserRxBufferLengthBLE);
 			UserRxBufferLengthBLE = 0;
@@ -231,5 +303,5 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
   txToUSB();
 
   /* Start another reception: provide the buffer pointer with offset and the buffer size */
-  HAL_UART_Receive_IT(huart, (uint8_t *)(UserTxBufferFS + UserTxBufPtrIn), 1);
+  HAL_UART_Receive_IT(huart, (uint8_t *)(UserTxBuffer + UserTxBufPtrIn), 1);
 }

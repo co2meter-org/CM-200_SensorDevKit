@@ -1,6 +1,5 @@
-USB_Device/App/usbd_cdc_if.o: ../USB_Device/App/usbd_cdc_if.c \
- ../Core/Inc/uart_ifce.h ../Core/Inc/main.h \
- ../Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_hal.h \
+Core/Src/uart_ifce.o: ../Core/Src/uart_ifce.c ../Core/Inc/uart_ifce.h \
+ ../Core/Inc/main.h ../Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_hal.h \
  ../Core/Inc/stm32wbxx_hal_conf.h \
  ../Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_hal_dma.h \
  ../Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_hal_def.h \
@@ -67,8 +66,7 @@ USB_Device/App/usbd_cdc_if.o: ../USB_Device/App/usbd_cdc_if.c \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_core.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h \
- ../STM32_WPAN/App/custom_app.h ../USB_Device/App/usbd_cdc_if.h \
- ../Core/Inc/main.h
+ ../STM32_WPAN/App/custom_app.h
 ../Core/Inc/uart_ifce.h:
 ../Core/Inc/main.h:
 ../Drivers/STM32WBxx_HAL_Driver/Inc/stm32wbxx_hal.h:
@@ -141,5 +139,3 @@ USB_Device/App/usbd_cdc_if.o: ../USB_Device/App/usbd_cdc_if.c \
 ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h:
 ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h:
 ../STM32_WPAN/App/custom_app.h:
-../USB_Device/App/usbd_cdc_if.h:
-../Core/Inc/main.h:

@@ -19,12 +19,13 @@
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
+#include <uart_ifce.h>
 #include "common_blesvc.h"
 #include "custom_stm.h"
 
 /* USER CODE BEGIN Includes */
 #include "main.h"
-#include "usbd_cdc_if.h"
+//include "usbd_cdc_if.h"
 
 /* USER CODE END Includes */
 

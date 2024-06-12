@@ -123,6 +123,7 @@ int main(void)
     Error_Handler();
   }
 
+  uart_ifce_init();
   /* USER CODE END 2 */
 	LL_HSEM_1StepLock( HSEM, 5 );
   /* Init code for STM32_WPAN */

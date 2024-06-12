@@ -157,7 +157,8 @@ extern USBD_CDC_ItfTypeDef USBD_Interface_fops_FS;
 uint8_t CDC_Transmit_FS(uint8_t* Buf, uint16_t Len);
 
 /* USER CODE BEGIN EXPORTED_FUNCTIONS */
-void BLE_to_UART(uint8_t * bleBuf, uint16_t Len);
+//void BLE_to_UART(uint8_t * bleBuf, uint16_t Len);
+void USB_Rcv();
 
 /* USER CODE END EXPORTED_FUNCTIONS */
 
