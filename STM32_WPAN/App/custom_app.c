@@ -95,6 +95,9 @@ void Custom_STM_App_Notification(Custom_STM_App_Notification_evt_t *pNotificatio
   switch (pNotification->Custom_Evt_Opcode)
   {
     /* USER CODE BEGIN CUSTOM_STM_App_Notification_Custom_Evt_Opcode */
+	  case 32:
+		Custom_Read_Update_Char();
+		break;
 
     /* USER CODE END CUSTOM_STM_App_Notification_Custom_Evt_Opcode */
 
@@ -128,9 +131,6 @@ void Custom_STM_App_Notification(Custom_STM_App_Notification_evt_t *pNotificatio
 
       /* USER CODE END CUSTOM_STM_READ_NOTIFY_DISABLED_EVT */
       break;
-    case 32:
-    	Custom_Read_Update_Char();
-    	break;
 
     default:
       /* USER CODE BEGIN CUSTOM_STM_App_Notification_default */
@@ -203,16 +203,16 @@ void Custom_APP_Init(void)
 /* CM200_SensorDevKit */
 void Custom_Read_Update_Char(void) /* Property Read */
 {
-  uint8_t updateflag = 1;
+  uint8_t updateflag = 0;
 
   /* USER CODE BEGIN Read_UC_1*/
+  Custom_STM_App_Update_Char(CUSTOM_STM_READ, (uint8_t *)UpdateCharData);
 
   /* USER CODE END Read_UC_1*/
 
   if (updateflag != 0)
   {
     Custom_STM_App_Update_Char(CUSTOM_STM_READ, (uint8_t *)UpdateCharData);
-    updateflag = 0;
   }
 
   /* USER CODE BEGIN Read_UC_Last*/

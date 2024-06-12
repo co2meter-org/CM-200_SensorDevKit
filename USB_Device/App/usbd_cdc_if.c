@@ -19,11 +19,11 @@
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
-#include <uart_ifce.h>
 #include "usbd_cdc_if.h"
 
 /* USER CODE BEGIN INCLUDE */
 #include "main.h"
+#include "uart_ifce.h"
 
 /* USER CODE END INCLUDE */
 
@@ -99,7 +99,7 @@ uint8_t UserTxBufferFS[APP_TX_DATA_SIZE];
 /* USER CODE BEGIN PRIVATE_VARIABLES */
 USBD_CDC_LineCodingTypeDef LineCoding =
 {
-  115200, /* baud rate*/
+  9600, /* baud rate*/
   0x00,   /* stop bits-1*/
   0x00,   /* parity - none*/
   0x08    /* nb. of bits 8*/
@@ -162,7 +162,8 @@ USBD_CDC_ItfTypeDef USBD_Interface_fops_FS =
   */
 static int8_t CDC_Init_FS(void)
 {
-  /*##-5- Set Application Buffers ############################################*/
+  /* USER CODE BEGIN 3 */
+  /* Set Application Buffers */
   USBD_CDC_SetTxBuffer(&hUsbDeviceFS, UserTxBufferFS, 0);
   USBD_CDC_SetRxBuffer(&hUsbDeviceFS, UserRxBufferFS);
   return (USBD_OK);
@@ -252,11 +253,6 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
   /* USER CODE END 5 */
 }
 
-void USB_Rcv()
-{
-	USBD_CDC_ReceivePacket(&hUsbDeviceFS);//hUsbDeviceFS
-}
-
 /**
   * @brief  Data received over USB OUT endpoint are sent over CDC interface
   *         through this function.
@@ -331,7 +327,10 @@ static int8_t CDC_TransmitCplt_FS(uint8_t *Buf, uint32_t *Len, uint8_t epnum)
 }
 
 /* USER CODE BEGIN PRIVATE_FUNCTIONS_IMPLEMENTATION */
-
+void USB_Rcv()
+{
+	USBD_CDC_ReceivePacket(&hUsbDeviceFS);//hUsbDeviceFS
+}
 
 /* USER CODE END PRIVATE_FUNCTIONS_IMPLEMENTATION */
 

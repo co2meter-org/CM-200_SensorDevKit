@@ -19,7 +19,6 @@
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
-#include <uart_ifce.h>
 #include "common_blesvc.h"
 #include "custom_stm.h"
 
@@ -198,7 +197,7 @@ static SVCCTL_EvtAckStatus_t Custom_STM_Event_Handler(void *Event)
 
           else if (attribute_modified->Attr_Handle == (CustomContext.CustomWriteHdle + CHARACTERISTIC_VALUE_ATTRIBUTE_OFFSET))
           {
-            //return_value = SVCCTL_EvtAckFlowEnable;
+            return_value = SVCCTL_EvtAckFlowEnable;
             /* USER CODE BEGIN CUSTOM_STM_Service_1_Char_1_ACI_GATT_ATTRIBUTE_MODIFIED_VSEVT_CODE */
 
         	  //HAL_UART_Transmit_IT(&huart1, attribute_modified->Attr_Data[attribute_modified->Offset], attribute_modified->Attr_Data_Length);

@@ -22,7 +22,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "uart_ifce.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -51,7 +51,7 @@ UART_HandleTypeDef huart1;
 DMA_HandleTypeDef hdma_usart1_tx;
 
 /* USER CODE BEGIN PV */
-extern uint8_t bConnected;
+
 
 /* USER CODE END PV */
 
@@ -124,8 +124,9 @@ int main(void)
   }
 
   uart_ifce_init();
+  LL_HSEM_1StepLock( HSEM, 5 );
   /* USER CODE END 2 */
-	LL_HSEM_1StepLock( HSEM, 5 );
+
   /* Init code for STM32_WPAN */
   MX_APPE_Init();
 
@@ -342,7 +343,7 @@ static void MX_TIM2_Init(void)
   htim2.Instance = TIM2;
   htim2.Init.Prescaler = 6399;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 10000;
+  htim2.Init.Period = 5000;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
@@ -449,7 +450,7 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, gLED_BLUE_Pin|gLED_GREEN_Pin|gLED_RED_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, gLED_RED_Pin|gLED_BLUE_Pin|gLED_GREEN_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin : BLE_Button_Pin */
   GPIO_InitStruct.Pin = BLE_Button_Pin;
@@ -463,8 +464,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(User_Button_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : gLED_BLUE_Pin gLED_GREEN_Pin gLED_RED_Pin */
-  GPIO_InitStruct.Pin = gLED_BLUE_Pin|gLED_GREEN_Pin|gLED_RED_Pin;
+  /*Configure GPIO pins : gLED_RED_Pin gLED_BLUE_Pin gLED_GREEN_Pin */
+  GPIO_InitStruct.Pin = gLED_RED_Pin|gLED_BLUE_Pin|gLED_GREEN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;

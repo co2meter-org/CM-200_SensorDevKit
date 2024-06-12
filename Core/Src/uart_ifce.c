@@ -247,34 +247,35 @@ void txToUSB()
 
 	if(status == USBD_OK)
 	{
-		UserRxBufferBLE[UserRxBufferLengthBLE++] = UserTxBuffer[buffptr];
-		if(UserTxBuffer[buffptr] == '\n' && UserRxBufferBLE[0] != 0xFE)
+
+	}
+	UserRxBufferBLE[UserRxBufferLengthBLE++] = UserTxBuffer[buffptr];
+	if(UserTxBuffer[buffptr] == '\n' && UserRxBufferBLE[0] != 0xFE)
+	{
+		Write_UART_To_BLE(UserRxBufferBLE, UserRxBufferLengthBLE);
+		UserRxBufferLengthBLE = 0;
+	}
+	else if (check_crc() == 1)
+	{
+		Write_UART_To_BLE(UserRxBufferBLE, UserRxBufferLengthBLE);
+		UserRxBufferLengthBLE = 0;
+	}
+	else
+	{
+		if(UserRxBufferLengthBLE >= 32 - 1)
 		{
 			Write_UART_To_BLE(UserRxBufferBLE, UserRxBufferLengthBLE);
 			UserRxBufferLengthBLE = 0;
 		}
-		else if (check_crc() == 1)
-		{
-			Write_UART_To_BLE(UserRxBufferBLE, UserRxBufferLengthBLE);
-			UserRxBufferLengthBLE = 0;
-		}
-		else
-		{
-			if(UserRxBufferLengthBLE >= 32 - 1)
-			{
-				Write_UART_To_BLE(UserRxBufferBLE, UserRxBufferLengthBLE);
-				UserRxBufferLengthBLE = 0;
-			}
-		}
-		//uint8_t bleTXBuffer[buffsize];
-		//strncpy((char *)bleTXBuffer, (char *)UserTxBufferFS[buffptr], buffsize);
+	}
+	//uint8_t bleTXBuffer[buffsize];
+	//strncpy((char *)bleTXBuffer, (char *)UserTxBufferFS[buffptr], buffsize);
 
 
-		UserTxBufPtrOut += buffsize;
-		if (UserTxBufPtrOut == APP_RX_DATA_SIZE)
-		{
-			UserTxBufPtrOut = 0;
-		}
+	UserTxBufPtrOut += buffsize;
+	if (UserTxBufPtrOut == APP_RX_DATA_SIZE)
+	{
+		UserTxBufPtrOut = 0;
 	}
   }
 }
