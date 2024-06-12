@@ -28,6 +28,9 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32wbxx_hal.h"
+#include "app_conf.h"
+#include "app_entry.h"
+#include "app_common.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -61,12 +64,12 @@ void Error_Handler(void);
 #define BLE_Button_GPIO_Port GPIOH
 #define User_Button_Pin GPIO_PIN_5
 #define User_Button_GPIO_Port GPIOA
-#define gLED_BLUE_Pin GPIO_PIN_6
-#define gLED_BLUE_GPIO_Port GPIOA
-#define gLED_GREEN_Pin GPIO_PIN_7
-#define gLED_GREEN_GPIO_Port GPIOA
-#define gLED_RED_Pin GPIO_PIN_8
+#define gLED_RED_Pin GPIO_PIN_6
 #define gLED_RED_GPIO_Port GPIOA
+#define gLED_BLUE_Pin GPIO_PIN_7
+#define gLED_BLUE_GPIO_Port GPIOA
+#define gLED_GREEN_Pin GPIO_PIN_8
+#define gLED_GREEN_GPIO_Port GPIOA
 
 /* USER CODE BEGIN Private defines */
 

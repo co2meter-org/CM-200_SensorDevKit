@@ -105,6 +105,7 @@ void USBD_Clock_Config(void)
 void MX_USB_Device_Init(void)
 {
   /* USER CODE BEGIN USB_Device_Init_PreTreatment */
+
   /* USB Clock Initialization */
    USBD_Clock_Config();
   /* USER CODE END USB_Device_Init_PreTreatment */

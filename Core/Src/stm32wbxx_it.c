@@ -59,10 +59,13 @@ uint8_t led_index = 0;
 
 /* External variables --------------------------------------------------------*/
 extern PCD_HandleTypeDef hpcd_USB_FS;
+extern IPCC_HandleTypeDef hipcc;
+extern RTC_HandleTypeDef hrtc;
 extern TIM_HandleTypeDef htim2;
 extern DMA_HandleTypeDef hdma_usart1_tx;
 extern UART_HandleTypeDef huart1;
 /* USER CODE BEGIN EV */
+extern uint8_t bConnected;
 
 /* USER CODE END EV */
 
@@ -205,6 +208,20 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
+  * @brief This function handles RTC wake-up interrupt through EXTI line 19.
+  */
+void RTC_WKUP_IRQHandler(void)
+{
+  /* USER CODE BEGIN RTC_WKUP_IRQn 0 */
+
+  /* USER CODE END RTC_WKUP_IRQn 0 */
+  HAL_RTCEx_WakeUpTimerIRQHandler(&hrtc);
+  /* USER CODE BEGIN RTC_WKUP_IRQn 1 */
+
+  /* USER CODE END RTC_WKUP_IRQn 1 */
+}
+
+/**
   * @brief This function handles DMA1 channel1 global interrupt.
   */
 void DMA1_Channel1_IRQHandler(void)
@@ -242,7 +259,20 @@ void TIM2_IRQHandler(void)
   /* USER CODE END TIM2_IRQn 0 */
   HAL_TIM_IRQHandler(&htim2);
   /* USER CODE BEGIN TIM2_IRQn 1 */
-  HAL_GPIO_TogglePin(GPIOA,gLED_GREEN_Pin);
+  led_index++;
+  if (led_index >= 100)
+	  led_index = 0;
+
+  if (bConnected == 1)
+  {
+	  if (led_index % 10 == 0)
+		  HAL_GPIO_WritePin(GPIOA, gLED_BLUE_Pin, GPIO_PIN_RESET);
+	  else
+		  HAL_GPIO_WritePin(GPIOA, gLED_BLUE_Pin, GPIO_PIN_SET);
+  } else {
+	  HAL_GPIO_TogglePin(GPIOA,gLED_BLUE_Pin);
+  }
+
   /* USER CODE END TIM2_IRQn 1 */
 }
 
@@ -258,6 +288,48 @@ void USART1_IRQHandler(void)
   /* USER CODE BEGIN USART1_IRQn 1 */
 
   /* USER CODE END USART1_IRQn 1 */
+}
+
+/**
+  * @brief This function handles IPCC RX occupied interrupt.
+  */
+void IPCC_C1_RX_IRQHandler(void)
+{
+  /* USER CODE BEGIN IPCC_C1_RX_IRQn 0 */
+
+  /* USER CODE END IPCC_C1_RX_IRQn 0 */
+  HAL_IPCC_RX_IRQHandler(&hipcc);
+  /* USER CODE BEGIN IPCC_C1_RX_IRQn 1 */
+
+  /* USER CODE END IPCC_C1_RX_IRQn 1 */
+}
+
+/**
+  * @brief This function handles IPCC TX free interrupt.
+  */
+void IPCC_C1_TX_IRQHandler(void)
+{
+  /* USER CODE BEGIN IPCC_C1_TX_IRQn 0 */
+
+  /* USER CODE END IPCC_C1_TX_IRQn 0 */
+  HAL_IPCC_TX_IRQHandler(&hipcc);
+  /* USER CODE BEGIN IPCC_C1_TX_IRQn 1 */
+
+  /* USER CODE END IPCC_C1_TX_IRQn 1 */
+}
+
+/**
+  * @brief This function handles HSEM global interrupt.
+  */
+void HSEM_IRQHandler(void)
+{
+  /* USER CODE BEGIN HSEM_IRQn 0 */
+
+  /* USER CODE END HSEM_IRQn 0 */
+  HAL_HSEM_IRQHandler();
+  /* USER CODE BEGIN HSEM_IRQn 1 */
+
+  /* USER CODE END HSEM_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */
